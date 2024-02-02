@@ -70,27 +70,23 @@ export const postCartById = async (req, res) => {
 }
 
 export const updateProductToCart = async (req, res) => {
-    const { cid } = req.params;
+    const { cid } = req.params
     const { products } = req.body
     try {
-        const cart = await cartModel.findById(cid);
+        const cart = await cartModel.findById(cid)
         if (!cart) {
-            throw new Error("Cart not found");
+            throw new Error("Cart not found")
         }
         for (let prod of products) {
-            // Verifica si el producto ya existe en el carrito
-            const index = cart.products.findIndex(cartProduct => cartProduct.id_prod._id.toString() === prod.id_prod);
+            const index = cart.products.findIndex(cartProduct => cartProduct.id_prod._id.toString() === prod.id_prod)
             if (index !== -1) {
-                // Si ya existe, actualizamos la cantidad
-                cart.products[index].quantity = prod.quantity;
+                cart.products[index].quantity = prod.quantity
             } else {
-                // Si no existe, primero validamos que el producto exista en la base de datos
-                const exists = await productModel.findById(prod.id_prod);
+                const exists = await productModel.findById(prod.id_prod)
                 if (!exists) {
-                    throw new Error(`Product with ID ${prod.id_prod} not found`);
+                    throw new Error(`Product with ID ${prod.id_prod} not found`)
                 }
-                // Añade el producto al carrito
-                cart.products.push(prod);
+                cart.products.push(prod)
             }
         }
         await cart.save();
@@ -101,27 +97,24 @@ export const updateProductToCart = async (req, res) => {
 }
 
 export const updatedQuantityProdToCart = async (req, res) => {
-    const { cid, pid } = req.params;
-    const { quantity } = req.body;
+    const { cid, pid } = req.params
+    const { quantity } = req.body
     try {
-        const cart = await cartModel.findById(cid);
+        const cart = await cartModel.findById(cid)
         if (cart) {
-            //chequeamos si el producto existe
-            const product = await productModel.findById(pid);
+            const product = await productModel.findById(pid)
             if (product) {
-                //chequeamos si existe en carrito
-                const index = cart.products.findIndex(cartProd => cartProd.id_prod._id.toString() == pid
-                );
+                const index = cart.products.findIndex(cartProd => cartProd.id_prod._id.toString() == pid)
                 if (index != -1) {
                     cart.products[index].quantity = quantity;
-                    await cartModel.findByIdAndUpdate(cid, { products: cart.products });
-                    res.status(200).send({ respuesta: 'ok', mensaje: `cantidad de producto con id ${product._id} actualizada con exito a ${quantity}` });
+                    await cartModel.findByIdAndUpdate(cid, { products: cart.products })
+                    res.status(200).send({ respuesta: 'ok', mensaje: `cantidad de producto con id ${product._id} actualizada con exito a ${quantity}` })
                 } else {
-                    res.status(404).send({ respuesta: 'error', mensaje: 'error, el producto no existe, no puedes actualizar la cantidad de productos no existentes, agregar el producto a carrito primero' });
+                    res.status(404).send({ respuesta: 'error', mensaje: 'error, el producto no existe, no puedes actualizar la cantidad de productos no existentes, agregar el producto a carrito primero' })
                 }
             }
         } else {
-            res.status(404).send({ respuesta: 'error al agregar producto al carrito', mensaje: 'Carrito no existe' });
+            res.status(404).send({ respuesta: 'error al agregar producto al carrito', mensaje: 'Carrito no existe' })
         }
     } catch (error) {
         res.status(500).send({ respuesta: 'error al agregar producto al carrito', mensaje: error.message })

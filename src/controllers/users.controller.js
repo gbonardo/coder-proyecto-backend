@@ -2,6 +2,28 @@ import { userModel } from "../dao/models/users.models.js"
 
 
 export const getUsers = async (req, res) => {
+    const {limit, page} = req.query;
+    let query = {};  
+    let options = {
+        lim: parseInt(limit) || 10,
+        pag: parseInt(page) || 1,
+        select: 'first_name last_name email rol'
+    };
+
+    try {
+        const users = await userModel.paginate(query, options);
+
+        if(users) {
+            return res.status(200).send({payload: users})
+        }
+        res.status(404).send({message: 'No se encontraron usuarios'})
+    } catch (error) {
+        res.status(500).send({message: 'Error al obtener los usuarios'})
+    }
+}
+
+/*
+export const getUsers = async (req, res) => {
     const { limit } = req.query
     try {
         const users = await userModel.find().limit(limit)
@@ -10,7 +32,7 @@ export const getUsers = async (req, res) => {
         res.status(400).send({ respuesta: 'Error consultando usuarios', mensaje: error })
     }
 }
-
+*/
 export const getUserById = async (req, res) => {
     const { id } = req.params
     try {
